@@ -141,14 +141,18 @@ end, { desc = "Toggle diagnostics" })
 
 -- terminal split stuff
 -- Terminal -> Editor: exit terminal mode, switch to other pane (lands in normal mode)
-vim.keymap.set("t", "<D-o>", "<C-\\><C-n><C-w>w", { desc = "Bounce to other pane"})
+for _, key in ipairs({"<D-o>", "<C-x>o"}) do
+  vim.keymap.set("t", key, "<C-\\><C-n><C-w>w", { desc = "Bounce to other pane"})
+end
 -- Editor -> Terminal: switch pane, enter insert mode if landing in a terminal
-vim.keymap.set({"n", "i"}, "<D-o>", function()
-  vim.cmd("wincmd p")
-  if vim.bo.buftype == "terminal" then
-    vim.cmd("startinsert")
-  end
-end, { desc = "Bounce to other pane" })
+for _, key in ipairs({"<D-o>", "<C-x>o"}) do
+  vim.keymap.set({"n", "i"}, key, function()
+    vim.cmd("wincmd p")
+    if vim.bo.buftype == "terminal" then
+      vim.cmd("startinsert")
+    end
+  end, { desc = "Bounce to other pane" })
+end
 
 -- ============================================================================
 -- AUTOCMDS
