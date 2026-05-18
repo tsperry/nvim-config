@@ -63,6 +63,9 @@ vim.opt.mouse = "a" -- enable mouse support
 vim.opt.clipboard:append("unnamedplus") -- use system clipboard
 
 
+vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+
 -- Folding: requires treesitter available at runtime; safe fallback if not
 vim.opt.foldmethod = "expr" -- use expression for folding
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- use treesitter for folding
@@ -283,7 +286,7 @@ local set_theme = function()
   vim.cmd.colorscheme("darcula-dark")
 end
 
-set_theme()
+-- set_theme()
 
 local setup_telescope = function()
    local telescope = require("telescope")
@@ -310,7 +313,6 @@ local setup_telescope = function()
   vim.keymap.set('n', '<leader>/', function()
     -- You can pass additional configuration to Telescope to change the theme, layout, etc.
     builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-      winblend = 10,
       previewer = false,
     })
   end, { desc = '[/] Fuzzily search in current buffer' })
