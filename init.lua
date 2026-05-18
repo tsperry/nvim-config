@@ -421,7 +421,7 @@ local setup_iron = function()
              format = require("iron.fts.common").bracketed_paste_python,
            },
            r = {
-             command = { "R" },
+             command = { "R", "--quiet", "--no-save" },
            },
          },
 
