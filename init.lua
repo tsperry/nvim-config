@@ -62,8 +62,6 @@ vim.opt.selection = "inclusive" -- include last char in selection
 vim.opt.mouse = "a" -- enable mouse support
 vim.opt.clipboard:append("unnamedplus") -- use system clipboard
 
--- vim.opt.guicursor =
--- 	"n-v-c:block,i-ci-ve:block,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175" -- cursor blinking and settings
 
 -- Folding: requires treesitter available at runtime; safe fallback if not
 vim.opt.foldmethod = "expr" -- use expression for folding
@@ -137,6 +135,17 @@ end, { desc = "Copy full file path" })
 vim.keymap.set("n", "<leader>td", function()
 	vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "Toggle diagnostics" })
+
+-- terminal split stuff
+-- Terminal -> Editor: exit terminal mode, switch to other pane (lands in normal mode)
+vim.keymap.set("t", "<D-o>", "<C-\\><C-n><C-w>w", { desc = "Bounce to other pane"})
+-- Editor -> Terminal: switch pane, enter insert mode if landing in a terminal
+vim.keymap.set({"n", "i"}, "<D-o>", function()
+  vim.cmd("wincmd p")
+  if vim.bo.buftype == "terminal" then
+    vim.cmd("startinsert")
+  end
+end, { desc = "Bounce to other pane" })
 
 -- ============================================================================
 -- AUTOCMDS
@@ -261,11 +270,20 @@ vim.pack.add({
   "https://github.com/nvim-lua/plenary.nvim",   -- telescope dependency
   "https://github.com/nvim-telescope/telescope.nvim",
   "https://github.com/folke/which-key.nvim",
+  "https://github.com/xiantang/darcula-dark.nvim",
 })
 
 -- ============================================================================
 -- PLUGIN CONFIGS
 -- ============================================================================
+
+local set_theme = function()
+  vim.opt.termguicolors = true
+  require("darcula").setup({})
+  vim.cmd.colorscheme("darcula-dark")
+end
+
+set_theme()
 
 local setup_telescope = function()
    local telescope = require("telescope")
