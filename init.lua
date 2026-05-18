@@ -274,8 +274,12 @@ vim.pack.add({
 		version = vim.version.range("1.*"),
 	},
 	"https://github.com/L3MON4D3/LuaSnip",
-  "https://github.com/nvim-lua/plenary.nvim",   -- telescope dependency
+  -- REPL plugin
+  "https://github.com/Vigemus/iron.nvim",
+  -- Telescope
+  "https://github.com/nvim-lua/plenary.nvim",
   "https://github.com/nvim-telescope/telescope.nvim",
+  -- misc.
   "https://github.com/folke/which-key.nvim",
   "https://github.com/xiantang/darcula-dark.nvim",
 })
@@ -394,6 +398,73 @@ end, { desc = "Toggle inline blame" })
 vim.keymap.set("n", "<leader>hd", function()
 	require("gitsigns").diffthis()
 end, { desc = "Diff this" })
+
+local setup_iron = function()
+     local iron = require("iron.core")
+     local view = require("iron.view")
+
+     iron.setup({
+       config = {
+         -- If true: REPL closes when you close its window.
+         -- If false: REPL persists in background. "true" is tidier for a beginner.
+         scratch_repl = true,
+
+         -- How iron decides when to reuse a REPL vs. create a new one.
+         -- "path_based" means: same working directory → same REPL.
+         -- This is usually what you want.
+         scope = require("iron.scope").path_based,
+
+         repl_definition = {
+           python = {
+             command = { "python3" },
+             -- bracketed_paste lets Python handle multi-line input correctly
+             format = require("iron.fts.common").bracketed_paste_python,
+           },
+           r = {
+             command = { "R" },
+           },
+         },
+
+         -- Opens the REPL in a bottom split, 40 rows tall
+         repl_open_cmd = view.split.botright(40),
+       },
+
+       keymaps = {
+         send_line = "<space>rl",        -- send current line
+         visual_send = "<space>rc",      -- send visual selection (c = chunk)
+         send_paragraph = "<space>rp",   -- send paragraph
+         send_file = "<space>rf",        -- send entire file
+         send_until_cursor = "<space>ru",-- send from top to cursor
+         send_motion = "<space>rm",      -- send a motion (e.g. <space>rmip)
+         send_mark = "<space>rM",        -- send marked region
+         mark_motion = "<space>rmc",     -- mark a motion (without sending)
+         mark_visual = "<space>rmc",     -- mark visual selection
+         remove_mark = "<space>rmd",     -- clear the mark
+         cr = "<space>r<cr>",            -- send a bare Enter to the REPL
+         interrupt = "<space>r<space>",  -- send Ctrl-C (interrupt)
+         exit = "<space>rq",             -- quit the REPL
+         clear = "<space>rx",            -- clear REPL screen
+         toggle_repl = "<space>rr",      -- open/close the REPL window
+         restart_repl = "<space>rR",     -- restart the REPL
+       },
+
+       ignore_blank_lines = true,        -- don't send empty lines
+     })
+
+     -- Normal mode: send line, then advance to next line
+     vim.keymap.set("n", "<leader><CR>", function()
+       require("iron.core").send_line()
+       vim.api.nvim_feedkeys("j", "n", false)
+     end, { desc = "Send line and advance" })
+
+     -- Visual mode: send selection, stay put
+     vim.keymap.set("v", "<leader><CR>", function()
+       require("iron.core").visual_send()
+     end, { desc = "Send selection" })
+
+end
+
+setup_iron()
 
 -- ============================================================================
 -- LSP, Linting, Formatting & Completion
@@ -541,10 +612,8 @@ vim.lsp.config("lua_ls", {
 		},
 	},
 })
-vim.lsp.config("pyright", {})
 vim.lsp.config("bashls", {})
 vim.lsp.config("ts_ls", {})
-vim.lsp.config("gopls", {})
 vim.lsp.config("clangd", {})
 
 do
@@ -615,10 +684,10 @@ end
 
 vim.lsp.enable({
 	"lua_ls",
-	"pyright",
 	"bashls",
 	"ts_ls",
-	"gopls",
 	"clangd",
+
 	"efm",
 })
+
