@@ -421,12 +421,14 @@ local setup_iron = function()
              format = require("iron.fts.common").bracketed_paste_python,
            },
            r = {
-             command = { "R", "--quiet", "--no-save" },
+             command = vim.fn.executable("arf") == 1 
+                             and { "arf" } 
+                             or { "R", "--quiet", "--no-save" },
            },
          },
 
          -- Opens the REPL in a bottom split, 40 rows tall
-         repl_open_cmd = view.split.botright(40),
+         repl_open_cmd = view.right(80),
        },
 
        keymaps = {
