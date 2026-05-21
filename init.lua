@@ -170,6 +170,10 @@ if vim.g.vscode then
      vscode.action("editor.debug.action.addLogPoint")
   end, { desc = "[B]reakpoint [L]ogpoint" })
 
+  vim.keymap.set({ "n", "v" }, "<leader>bw", function()
+     vscode.action("editor.debug.action.selectionToRepl")
+  end, { desc = "[B]reakpoint send to console" })
+
 	return
 end
 
