@@ -376,6 +376,7 @@ require("nvim-treesitter").setup({
 		"markdown",
 		"bash",
 		"json",
+    "go",
 	},
 })
 -- TODO: consider adding "r" parser for R syntax highlighting
@@ -585,6 +586,11 @@ vim.lsp.config("r_language_server", {
 	end,
 })
 
+   vim.lsp.config("gopls", {
+       cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/gopls") },
+       filetypes = { "go", "gomod", "gowork", "gotmpl" },
+   })
+
 -- EFM (linters + formatters for lua and python)
 do
 	local luacheck = require("efmls-configs.linters.luacheck")
@@ -609,4 +615,5 @@ vim.lsp.enable({
 	"lua_ls",
 	"efm",
 	"r_language_server",
+  "gopls",
 })
