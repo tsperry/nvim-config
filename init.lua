@@ -21,6 +21,11 @@ vim.opt.timeoutlen = 5000
 vim.opt.ttimeoutlen = 50
 vim.opt.updatetime = 300
 
+vim.filetype.add({
+  extention = {
+    gotmpl = "gotmpl",
+  },
+})
 -- ============================================================================
 -- SHARED KEYMAPS
 -- ============================================================================
@@ -525,19 +530,6 @@ local function lsp_on_attach(ev)
 	vim.keymap.set("n", "<leader>gW", builtin.lsp_dynamic_workspace_symbols, opts)
 	vim.keymap.set("n", "<leader>gt", builtin.lsp_type_definitions, opts)
 
-	-- Organize imports + format
-	if client:supports_method("textDocument/codeAction", bufnr) then
-		vim.keymap.set("n", "<leader>oi", function()
-			vim.lsp.buf.code_action({
-				context = { only = { "source.organizeImports" }, diagnostics = {} },
-				apply = true,
-				bufnr = bufnr,
-			})
-			vim.defer_fn(function()
-				vim.lsp.buf.format({ bufnr = bufnr })
-			end, 50)
-		end, opts)
-	end
 end
 
 vim.api.nvim_create_autocmd("LspAttach", { group = augroup, callback = lsp_on_attach })
@@ -591,29 +583,44 @@ vim.lsp.config("r_language_server", {
 	end,
 })
 
-   vim.lsp.config("gopls", {
-       cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/gopls") },
-       filetypes = { "go", "gomod", "gowork", "gotmpl" },
-   })
+vim.lsp.config("gopls", {
+   cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/gopls") },
+   filetypes = { "go", "gomod", "gowork", "gotmpl" },
+})
+
+vim.lsp.config("emf", {
+  cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/efm-langserver") },
+  filetypes = { "lua", "python" },
+  init_options = { documentFormatting = true },
+  settings = {
+    languages = {
+      lua = { luacheck, stylua },
+      python = { black }, -- just formatting; pylsp handles diagnostics
+    },
+  },
+})
+
+vim.lsp.config("pylsp", {
+  cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/pylsp") },
+  filetypes = { "python" },
+})
 
 -- EFM (linters + formatters for lua and python)
-do
-	local luacheck = require("efmls-configs.linters.luacheck")
-	local stylua = require("efmls-configs.formatters.stylua")
-	local flake8 = require("efmls-configs.linters.flake8")
-	local black = require("efmls-configs.formatters.black")
+local luacheck = require("efmls-configs.linters.luacheck")
+local stylua = require("efmls-configs.formatters.stylua")
+local flake8 = require("efmls-configs.linters.flake8")
+local black = require("efmls-configs.formatters.black")
 
-	vim.lsp.config("efm", {
-		filetypes = { "lua", "python" },
-		init_options = { documentFormatting = true },
-		settings = {
-			languages = {
-				lua = { luacheck, stylua },
-				python = { flake8, black },
-			},
-		},
-	})
-end
+vim.lsp.config("efm", {
+  filetypes = { "lua", "python" },
+  init_options = { documentFormatting = true },
+  settings = {
+    languages = {
+      lua = { luacheck, stylua },
+      python = { flake8, black },
+    },
+  },
+})
 
 -- Enable all configured LSP servers
 vim.lsp.enable({
