@@ -70,6 +70,8 @@ vim.keymap.set("n", "<leader>pa", function()
 	print("file:", path)
 end, { desc = "Copy full file path" })
 
+vim.keymap.set("n", "gl", vim.diagnostic.open_float, { desc = "show diagnostics under cursor" })
+
 -- ============================================================================
 -- SHARED AUTOCMDS
 -- ============================================================================
@@ -224,6 +226,9 @@ vim.opt.wildmode = "longest:full,full"
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 
+vim.opt.signcolumn = "yes:1"
+vim.opt.numberwidth = 5
+
 vim.opt.diffopt:append("linematch:60")
 
 -- Folding: requires treesitter
@@ -327,6 +332,8 @@ vim.pack.add({
 	"https://github.com/nvim-lua/plenary.nvim",
 	"https://github.com/nvim-telescope/telescope.nvim",
 	"https://github.com/folke/which-key.nvim",
+  "https://github.com/mfussenegger/nvim-dap",
+  "https://github.com/leoluz/nvim-dap-go",
 })
 
 -- ============================================================================
@@ -482,13 +489,11 @@ setup_iron()
 -- ============================================================================
 
 -- Rounded borders for all floating windows
-do
-	local orig = vim.lsp.util.open_floating_preview
-	function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-		opts = opts or {}
-		opts.border = opts.border or "rounded"
-		return orig(contents, syntax, opts, ...)
-	end
+local orig = vim.lsp.util.open_floating_preview
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+  opts = opts or {}
+  opts.border = opts.border or "rounded"
+  return orig(contents, syntax, opts, ...)
 end
 
 -- LSP on-attach: keybindings (no diagnostics — VS Code handles those)
@@ -617,3 +622,39 @@ vim.lsp.enable({
 	"r_language_server",
   "gopls",
 })
+
+
+
+
+-- ============================================================================
+-- DAP (Debug Adapter Protocol)
+-- ============================================================================
+
+local dap = require("dap")
+local dap_go = require("dap-go")
+
+dap_go.setup()
+
+vim.keymap.set("n", "<leader>bb", dap.toggle_breakpoint,  { desc = "[B]reakpoint toggle" })
+vim.keymap.set("n", "<leader>bc", dap.continue,           { desc = "[B]reakpoint [C]ontinue" })
+vim.keymap.set("n", "<leader>bo", dap.step_over,          { desc = "[B]reakpoint step [O]ver" })
+vim.keymap.set("n", "<leader>bi", dap.step_into,          { desc = "[B]reakpoint step [I]nto" })
+vim.keymap.set("n", "<leader>bO", dap.step_out,           { desc = "[B]reakpoint step [O]ut" })
+vim.keymap.set("n", "<leader>br", dap.restart,            { desc = "[B]reakpoint [R]estart" })
+vim.keymap.set("n", "<leader>bq", dap.terminate,          { desc = "[B]reakpoint [Q]uit" })
+
+-- Run tests (non-debug)
+vim.keymap.set("n", "<leader>ta", ":term go test ./...<CR>",
+   { desc = "[G]o [T]est all" })
+vim.keymap.set("n", "<leader>tf", function()
+   vim.cmd("term go test -run " .. vim.fn.expand("<cword>"))
+end, { desc = "[G]o [T]est function under cursor" })
+
+-- Debug tests (DAP)
+vim.keymap.set("n", "<leader>bdt", dap_go.debug_test,
+   { desc = "[B]reakpoint [D]ebug [T]est" })
+vim.keymap.set("n", "<leader>bdl", dap_go.debug_last_test,
+   { desc = "[B]reakpoint [D]ebug [L]ast test" })
+
+
+
