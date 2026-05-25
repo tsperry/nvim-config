@@ -556,10 +556,11 @@ vim.lsp.config("lua_ls", {
 vim.lsp.config("r_language_server", {
 	cmd = { "R", "--slave", "-e", "languageserver::run()" },
 	filetypes = { "r", "rmd" },
-	root_dir = function(fname)
-		local root = vim.fs.find({ ".git", "DESCRIPTION" }, { upward = true })[1]
-		return root and vim.fs.dirname(root) or vim.fs.dirname(fname)
-	end,
+   root_dir = function(fname, bufnr)
+     local path = type(fname) == "string" and fname
+       or vim.api.nvim_buf_get_name(fname)
+     return vim.fs.root(path, { ".git", "DESCRIPTION" }) or vim.fs.dirname(path)
+   end,
 })
 
 vim.lsp.config("gopls", {
