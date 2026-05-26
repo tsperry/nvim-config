@@ -345,6 +345,7 @@ local setup_telescope = function()
 	vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "[F]ind [R]esume" })
 	vim.keymap.set("n", "<leader>f.", builtin.oldfiles, { desc = "[F]ind Recent Files ('.' for repeat)" })
 	vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "[F]ind [C]ommands" })
+	vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "[F]ind [B]uffers" })
 
 	vim.keymap.set("n", "<leader>/", function()
 		builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
